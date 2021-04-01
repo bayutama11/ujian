@@ -1,10 +1,29 @@
 <?php
-
+ini_set('display_errors', 1);
 // Ambil ID user (Guru) yang sedang login
 $id_user = $_SESSION['id'];
 // Ambil data ujian (yang bikin ujiannya adalah orang yang login)
 // Jadi tidak semua orang bisa melihat ujian yang sama, cuma yang bikin ujian saja yg bisa melihat ujiannya
 $sql = $koneksi->query("SELECT * FROM ujian WHERE id_user = $id_user");
+
+$dataUjian = [];
+
+while ($ujian = $sql->fetch_assoc()) {
+    $dataUjian[] = $ujian;
+}
+
+foreach ($dataUjian as $ujian) {
+    // Mencacri ujian yang soalnya cuma satu
+    $soalUjian = $koneksi->query("SELECT * FROM bank_soal WHERE id_ujian = " . $ujian['id'] . "")->num_rows;
+
+    if ($soalUjian < 2) {
+?>
+        <div class="alert alert-danger" role="alert">
+            Ujian dengan mapel <?= $ujian['mapel']; ?> masih memiliki satu soal. Harap ditambahkan lagi soalnya.
+        </div>
+<?php
+    }
+}
 
 ?>
 <div class="card shadow">
@@ -30,7 +49,7 @@ $sql = $koneksi->query("SELECT * FROM ujian WHERE id_user = $id_user");
                 <?php
 
                 $no = 1;
-                while ($ujian = $sql->fetch_assoc()) :
+                foreach ($dataUjian as $ujian) :
 
                 ?>
                     <tr>
@@ -47,7 +66,7 @@ $sql = $koneksi->query("SELECT * FROM ujian WHERE id_user = $id_user");
                             </div>
                         </td>
                     </tr>
-                <?php endwhile; ?>
+                <?php endforeach; ?>
             </tbody>
         </table>
     </div>
@@ -145,7 +164,6 @@ $sql = $koneksi->query("SELECT * FROM ujian WHERE id_user = $id_user");
         $(".modal-body #jam").val(jam);
         $(".modal-body #tanggal").val(tanggal);
     })
-
 </script>
 
 <?php
