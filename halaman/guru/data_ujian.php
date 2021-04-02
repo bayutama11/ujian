@@ -19,7 +19,7 @@ foreach ($dataUjian as $ujian) {
     if ($soalUjian < 2) {
 ?>
         <div class="alert alert-danger" role="alert">
-            Ujian dengan mapel <?= $ujian['mapel']; ?> masih memiliki satu soal. Harap ditambahkan lagi soalnya.
+            Ujian dengan mapel <?= $ujian['mapel']; ?> masih memiliki satu soal. Ujian tidak akan ditampilkan ke siswa.
         </div>
 <?php
     }
