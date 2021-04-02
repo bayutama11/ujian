@@ -20,41 +20,47 @@
         // Ambil ID Ujian
         $id_ujian = $ujian['id'];
 
-        // Cek apakah sudah ikut ujian atau belum, dengan cara membuat query
-        // dari table nilai dengan join table ke ujian yang mana id siswanya adalah siswa yang login
-        $sudahIkutUjian = $koneksi->query("SELECT * FROM nilai INNER JOIN ujian ON nilai.id_ujian = ujian.id WHERE nilai.id_siswa = $id_siswa AND  nilai.id_ujian = $id_ujian");
+        // Hanya tampilkan soal ujian yang soalnya > 1
+        $soalUjian = $koneksi->query("SELECT * FROM bank_soal WHERE id_ujian = $id_ujian")->num_rows;
 
-        // Ambil jumlah row dari query d iatas
-        $cek = $sudahIkutUjian->num_rows;
+        if ($soalUjian > 1) {
 
-        // Ambil informasi dari query
-        $tanggalUjian = date('d/m/Y', strtotime($ujian['tanggal']));
-        $tanggalSekarang = date('d/m/Y');
-        $waktuSekarang = date('H:i:s');
-        $jamUjian = date(('H:i:s'), strtotime($ujian['tanggal']));
-        $waktuUjian = $ujian['waktu'];
-        $waktuBisaIkutUjian = date($jamUjian, strtotime("+{$waktuUjian} minutes"));
+            // Cek apakah sudah ikut ujian atau belum, dengan cara membuat query
+            // dari table nilai dengan join table ke ujian yang mana id siswanya adalah siswa yang login
+            $sudahIkutUjian = $koneksi->query("SELECT * FROM nilai INNER JOIN ujian ON nilai.id_ujian = ujian.id WHERE nilai.id_siswa = $id_siswa AND  nilai.id_ujian = $id_ujian");
 
-        // Pengecekan
-        if ($cek == 0 && ($tanggalUjian == $tanggalSekarang && ($waktuSekarang >= $waktuBisaIkutUjian))) {
-            $totalUjianTersedia++;
-    ?>
-            <div class="col-lg-4">
-                <div class="card">
-                    <div class="card-header"><?= $ujian['mapel']; ?></div>
-                    <div class="card-body">
-                        <ul class="list-unstyled">
-                            <li>Guru: <?= $ujian['nama']; ?></li>
-                            <li>Waktu: <?= $ujian['waktu']; ?> menit</li>
-                            <li>Tanggal: <?= $tanggalUjian; ?></li>
-                            <li>Jam: <?= $jamUjian; ?></li>
-                        </ul>
+            // Ambil jumlah row dari query d iatas
+            $cek = $sudahIkutUjian->num_rows;
+
+            // Ambil informasi dari query
+            $tanggalUjian = date('d/m/Y', strtotime($ujian['tanggal']));
+            $tanggalSekarang = date('d/m/Y');
+            $waktuSekarang = date('H:i:s');
+            $jamUjian = date(('H:i:s'), strtotime($ujian['tanggal']));
+            $waktuUjian = $ujian['waktu'];
+            $waktuBisaIkutUjian = date($jamUjian, strtotime("+{$waktuUjian} minutes"));
+
+            // Pengecekan
+            if ($cek == 0 && ($tanggalUjian == $tanggalSekarang && ($waktuSekarang >= $waktuBisaIkutUjian))) {
+                $totalUjianTersedia++;
+        ?>
+                <div class="col-lg-4">
+                    <div class="card">
+                        <div class="card-header"><?= $ujian['mapel']; ?></div>
+                        <div class="card-body">
+                            <ul class="list-unstyled">
+                                <li>Guru: <?= $ujian['nama']; ?></li>
+                                <li>Waktu: <?= $ujian['waktu']; ?> menit</li>
+                                <li>Tanggal: <?= $tanggalUjian; ?></li>
+                                <li>Jam: <?= $jamUjian; ?></li>
+                            </ul>
+                        </div>
+                        <input type="button" class="btn btn-primary btn-block btn-lg" value="Mulai" onclick="set_exam_type_session(<?= $ujian['id']; ?>);">
                     </div>
-                    <input type="button" class="btn btn-primary btn-block btn-lg" value="Mulai" onclick="set_exam_type_session(<?= $ujian['id']; ?>);">
                 </div>
-            </div>
-        <?php
-        }
+            <?php
+            }
+        } // End if soal ujian > 1
     endwhile;
     if ($totalUjianTersedia == 0) {
         ?>
